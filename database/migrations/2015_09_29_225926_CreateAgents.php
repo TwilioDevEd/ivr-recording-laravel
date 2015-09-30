@@ -12,7 +12,14 @@ class CreateAgents extends Migration
      */
     public function up()
     {
-        //
+        Schema::create(
+            'agents', function (Blueprint $table) {
+                $table->increments('id');
+                $table->string('phone_number');
+                $table->string('extension');
+                $table->timestamps();
+            }
+        );
     }
 
     /**
@@ -22,6 +29,6 @@ class CreateAgents extends Migration
      */
     public function down()
     {
-        //
+        Schema::drop('agents');
     }
 }

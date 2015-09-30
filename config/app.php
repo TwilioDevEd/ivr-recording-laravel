@@ -1,8 +1,5 @@
 <?php
 
-if ($app->environment('test')) {
-    $app->loadEnvironmentFrom('.env.test');
-}
 
 return [
 
@@ -113,7 +110,6 @@ return [
     */
 
     'providers' => [
-
         /*
          * Laravel Framework Service Providers...
          */
