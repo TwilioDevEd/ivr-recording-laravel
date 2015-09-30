@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\Agent;
 use Services_Twilio_Twiml;
 
 class IvrController extends Controller
@@ -71,16 +73,9 @@ class IvrController extends Controller
             return $selectedAction;
 
         } else {
-            $response = new Services_Twilio_Twiml;
-            $response->say(
-                'Returning to the main menu',
-                ['voice' => 'Alice', 'language' => 'en-GB']
-            );
-            $response->redirect(route('welcome', [], false));
-
-            return $response;
+            $errorResponse = $this->_getReturnToMainMenuInstructions();
+            return $errorResponse;
         }
-
     }
 
     /**
@@ -92,41 +87,62 @@ class IvrController extends Controller
     {
         $response = new Services_Twilio_Twiml;
         $response->say(
+            "You'll be connected shortly to your planet" .
             $this->_thankYouMessage,
             ['voice' => 'Alice', 'language' => 'en-GB']
         );
-        $response->say(
-            "You'll be connected shortly to your planet",
-            ['voice' => 'Alice', 'language' => 'en-GB']
-        );
 
-        $planetNumbers = [
-            '2' => '+12013409910',
-            '3' => '+12013409912',
-            '4' => '+12013409918'
-        ];
         $selectedOption = $request->input('Digits');
 
-        $planetNumberExists = isset($planetNumbers[$selectedOption]);
+        try {
+            $numberToDial = $this->_getPlanetNumberForDigit($selectedOption);
+            $response = new Services_Twilio_Twiml;
 
-        if ($planetNumberExists) {
-            $selectedNumber = $planetNumbers[$selectedOption];
-            $response->dial($selectedNumber);
+            $dialCommand = $response->dial(['action' => 'voicemail callback here']);
+            $dialCommand->number(
+                $numberToDial, ['url' => 'call screening callback here']
+            );
 
             return $response;
-        } else {
-            $errorResponse = new Services_Twilio_Twiml;
-            $errorResponse->say(
-                'Returning to the main menu',
-                ['voice' => 'Alice', 'language' => 'en-GB']
-            );
-            $errorResponse->redirect(route('welcome', [], false));
-
+        }
+        catch (ModelNotFoundException $e){
+            $errorResponse = $this->_getReturnToMainMenuInstructions();
             return $errorResponse;
         }
 
     }
 
+    private function _getReturnToMainMenuInstructions()
+    {
+        $errorResponse = new Services_Twilio_Twiml;
+        $errorResponse->say(
+            'Returning to the main menu',
+            ['voice' => 'Alice', 'language' => 'en-GB']
+        );
+        $errorResponse->redirect(route('welcome', [], false));
+
+        return $errorResponse;
+    }
+
+    private function _getPlanetNumberForDigit($digit)
+    {
+        $planetExtensions = [
+            '2' => 'Brodo',
+            '3' => 'Dagobah',
+            '4' => 'Oober'
+        ];
+        $planetExtensionExists = isset($planetExtensions[$digit]);
+
+        if ($planetExtensionExists) {
+            $planetNumber = Agent::where(
+                'extension', '=', $planetExtensionExists[$digit]
+            )->firstOrFail()->phone_number;
+
+            return $planetNumber;
+        } else {
+            return $this->_getReturnToMainMenuInstructions();
+        }
+    }
 
     /**
      * Responds with instructions to mothership
@@ -164,7 +180,7 @@ class IvrController extends Controller
         );
         $gather->say(
             'To call the planet Brodo Asogi, press 2. To call the planet' .
-            ' Dugobah, press 3. To call an Oober asteroid to your location,' .
+            ' Dagobah, press 3. To call an Oober asteroid to your location,' .
             ' press 4. To go back to the main menu, press the star key',
             ['voice' => 'Alice', 'language' => 'en-GB']
         );
