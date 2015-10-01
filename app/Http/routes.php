@@ -14,12 +14,14 @@ Route::group(
     ['prefix' => 'ivr', 'middleware' => 'starReturn'], function () {
         Route::post(
             '/welcome', [
-                'as' => 'welcome', 'uses' => 'IvrController@showWelcome'
+                'as' => 'welcome',
+                'uses' => 'IvrController@showWelcome'
             ]
         );
         Route::get(
             '/main-menu', [
-                'as' => 'main-menu', 'uses' => 'MainMenuController@showMenuResponse'
+                'as' => 'main-menu',
+                'uses' => 'MainMenuController@showMenuResponse'
             ]
         );
         Route::get(
@@ -32,6 +34,36 @@ Route::group(
             '/extension', [
                 'as' => 'extension-connection',
                 'uses' => 'ExtensionController@showExtensionConnection'
+            ]
+        );
+        Route::post(
+            '/agent/{agent}/call', [
+                'as' => 'new-call',
+                'uses' => 'AgentCallController@newCall'
+            ]
+        );
+        Route::post(
+            '/agent/screenCall', [
+                'as' => 'screen-call',
+                'uses' => 'AgentCallController@screenCall'
+            ]
+        );
+        Route::get(
+            '/agent/connectMessage', [
+                'as' => 'connect-message',
+                'uses' => 'AgentCallController@showConnectMessage'
+            ]
+        );
+        Route::get(
+            '/agent/hangup', [
+                'as' => 'hangup',
+                'uses' => 'AgentCallController@showHangup'
+            ]
+        );
+        Route::post(
+            'recording', [
+                'as' => 'store-recording',
+                'uses' => 'RecordingController@storeRecording'
             ]
         );
     }

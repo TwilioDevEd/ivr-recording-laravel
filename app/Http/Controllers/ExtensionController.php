@@ -21,28 +21,34 @@ class ExtensionController extends Controller
         $selectedOption = $request->input('Digits');
 
         try {
-            $numberToDial = $this->_getPlanetNumberForDigit($selectedOption);
-            $response = new Services_Twilio_Twiml;
-            $response->say(
-                "You'll be connected shortly to your planet. " .
-                $this->_thankYouMessage,
-                ['voice' => 'Alice', 'language' => 'en-GB']
-            );
-
-            $dialCommand = $response->dial(
-                ['action' => '',
-                 'method' => 'POST']
-            );
-            $dialCommand->number($numberToDial, ['url' => '']);
-
-            return $response;
+            $agent = $this->_getAgentForDigit($selectedOption);
         }
         catch (ModelNotFoundException $e){
             return redirect()->route('main-menu-redirect');
         }
+
+        $numberToDial = $agent->phone_number;
+
+        $response = new Services_Twilio_Twiml;
+        $response->say(
+            "You'll be connected shortly to your planet. " .
+            $this->_thankYouMessage,
+            ['voice' => 'alice', 'language' => 'en-GB']
+        );
+
+        $dialCommand = $response->dial(
+            ['action' => route('new-call', ['agent' => $agent->id], false),
+             'method' => 'POST']
+        );
+        $dialCommand->number(
+            $numberToDial,
+            ['url' => route('screen-call', [], false)]
+        );
+
+        return $response;
     }
 
-    private function _getPlanetNumberForDigit($digit)
+    private function _getAgentForDigit($digit)
     {
         $planetExtensions = [
             '2' => 'Brodo',
@@ -52,11 +58,11 @@ class ExtensionController extends Controller
         $planetExtensionExists = isset($planetExtensions[$digit]);
 
         if ($planetExtensionExists) {
-            $planetNumber = Agent::where(
+            $agent = Agent::where(
                 'extension', '=', $planetExtensions[$digit]
-            )->firstOrFail()->phone_number;
+            )->firstOrFail();
 
-            return $planetNumber;
+            return $agent;
         } else {
             throw new ModelNotFoundException;
         }
