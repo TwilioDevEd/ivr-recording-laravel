@@ -44,6 +44,8 @@ class AgentCallController extends Controller
 
             return $response;
         }
+
+        return "Ok";
     }
 
     /**
