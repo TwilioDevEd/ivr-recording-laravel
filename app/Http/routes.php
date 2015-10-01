@@ -31,7 +31,7 @@ Route::group(
         Route::get(
             '/extension', [
                 'as' => 'extension-connection',
-                'uses' => 'IvrController@showExtensionConnection'
+                'uses' => 'ExtensionController@showExtensionConnection'
             ]
         );
     }

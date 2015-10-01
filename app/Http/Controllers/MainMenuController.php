@@ -9,12 +9,6 @@ use Services_Twilio_Twiml;
 
 class MainMenuController extends Controller
 {
-    public function __construct()
-    {
-        $this->_thankYouMessage = 'Thank you for calling the ET Phone Home' .
-                                  ' Service - the adventurous alien\'s first choice' .
-                                  ' in intergalactic travel.';
-    }
     /**
      * Responds to selection of an option by the caller
      *
