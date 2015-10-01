@@ -11,21 +11,21 @@
 |
 */
 Route::group(
-    ['prefix' => 'ivr'], function () {
-        Route::any(
+    ['prefix' => 'ivr', 'middleware' => 'starReturn'], function () {
+        Route::post(
             '/welcome', [
                 'as' => 'welcome', 'uses' => 'IvrController@showWelcome'
             ]
         );
-        Route::any(
-            '/menu-response', [
-                'as' => 'menu-response', 'uses' => 'IvrController@showMenuResponse'
+        Route::get(
+            '/main-menu', [
+                'as' => 'main-menu', 'uses' => 'MainMenuController@showMenuResponse'
             ]
         );
-        Route::any(
-            '/planet', [
-                'as' => 'planet-connection',
-                'uses' => 'IvrController@showPlanetConnection'
+        Route::get(
+            '/extension', [
+                'as' => 'extension-connection',
+                'uses' => 'IvrController@showExtensionConnection'
             ]
         );
     }

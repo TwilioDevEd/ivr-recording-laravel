@@ -16,20 +16,6 @@ class IvrController extends Controller
         $this->_thankYouMessage = 'Thank you for calling the ET Phone Home' .
                                   ' Service - the adventurous alien\'s first choice' .
                                   ' in intergalactic travel.';
-
-        $this->beforeFilter('@checkForStar');
-    }
-
-    /**
-     * Redirect any request with Digits=* (star) to home menu
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function checkForStar($route, $request)
-    {
-        if ($request->input('Digits') === '*') {
-            return redirect()->route('welcome');
-        }
     }
 
     /**
@@ -42,7 +28,8 @@ class IvrController extends Controller
         $response = new Services_Twilio_Twiml;
         $gather = $response->gather(
             ['numDigits' => 1,
-             'action' => route('menu-response', [], false)]
+             'action' => route('main-menu', [], false),
+             'method' => 'GET']
         );
 
         $gather->play(
@@ -53,37 +40,13 @@ class IvrController extends Controller
         return $response;
     }
 
-    /**
-     * Responds to selection of an option by the caller
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function showMenuResponse(Request $request)
-    {
-        $optionActions = [
-            '1' => $this->_getReturnInstructions(),
-            '2' => $this->_getPlanetsMenu()
-        ];
-        $selectedOption = $request->input('Digits');
-
-        $actionExists = isset($optionActions[$selectedOption]);
-
-        if ($actionExists) {
-            $selectedAction = $optionActions[$selectedOption];
-            return $selectedAction;
-
-        } else {
-            $errorResponse = $this->_getReturnToMainMenuInstructions();
-            return $errorResponse;
-        }
-    }
 
     /**
      * Responds with a <Dial> to the caller's planet
      *
      * @return \Illuminate\Http\Response
      */
-    public function showPlanetConnection(Request $request)
+    public function showExtensionConnection(Request $request)
     {
         $selectedOption = $request->input('Digits');
 
@@ -96,7 +59,10 @@ class IvrController extends Controller
                 ['voice' => 'Alice', 'language' => 'en-GB']
             );
 
-            $dialCommand = $response->dial(['action' => '']);
+            $dialCommand = $response->dial(
+                ['action' => '',
+                 'method' => 'POST']
+            );
             $dialCommand->number($numberToDial, ['url' => '']);
 
             return $response;
@@ -140,47 +106,4 @@ class IvrController extends Controller
         }
     }
 
-    /**
-     * Responds with instructions to mothership
-     * @return Services_Twilio_Twiml
-     */
-    private function _getReturnInstructions()
-    {
-        $response = new Services_Twilio_Twiml;
-        $response->say(
-            'To get to your extraction point, get on your bike and go down the' .
-            ' street. Then Left down an alley. Avoid the police cars. Turn left' .
-            ' into an unfinished housing development. Fly over the roadblock. Go' .
-            ' passed the moon. Soon after you will see your mother ship.',
-            ['voice' => 'Alice', 'language' => 'en-GB']
-        );
-        $response->say(
-            $this->_thankYouMessage,
-            ['voice' => 'Alice', 'language' => 'en-GB']
-        );
-
-        $response->hangup();
-
-        return $response;
-    }
-
-    /**
-     * Responds with instructions to choose a planet
-     * @return Services_Twilio_Twiml
-     */
-    private function _getPlanetsMenu()
-    {
-        $response = new Services_Twilio_Twiml;
-        $gather = $response->gather(
-            ['numDigits' => '1', 'action' => route('planet-connection', [], false)]
-        );
-        $gather->say(
-            'To call the planet Brodo Asogi, press 2. To call the planet' .
-            ' Dagobah, press 3. To call an Oober asteroid to your location,' .
-            ' press 4. To go back to the main menu, press the star key',
-            ['voice' => 'Alice', 'language' => 'en-GB']
-        );
-
-        return $response;
-    }
 }

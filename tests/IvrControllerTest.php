@@ -23,8 +23,9 @@ class IvrControllerTest extends TestCase
         $this->assertEquals(1, $gatherCommand->children()->count());
 
         $this->assertEquals('1', $gatherCommand->attributes()['numDigits']);
+        $this->assertEquals('GET', $gatherCommand->attributes()['method']);
         $this->assertEquals(
-            route('menu-response', [], false), $gatherCommand->attributes()['action']
+            route('main-menu', [], false), $gatherCommand->attributes()['action']
         );
 
         $this->assertNotNull($welcomeResponse->Gather->Play);
@@ -33,9 +34,11 @@ class IvrControllerTest extends TestCase
     public function testMainMenuOptionOne()
     {
         // When
-        $response = $this->call('POST', route('menu-response'), ['Digits' => 1]);
+        $response = $this->call('GET', route('main-menu'), ['Digits' => 1]);
         $menuString = $response->getContent();
         $menuResponse = new SimpleXMLElement($menuString);
+
+        error_log($menuString);
 
         // Then
         $this->assertEquals(3, $menuResponse->children()->count());
@@ -47,7 +50,7 @@ class IvrControllerTest extends TestCase
     public function testMainMenuOptionTwo()
     {
         // When
-        $response = $this->call('POST', route('menu-response'), ['Digits' => 2]);
+        $response = $this->call('GET', route('main-menu'), ['Digits' => 2]);
         $menuString = $response->getContent();
         $menuResponse = new SimpleXMLElement($menuString);
 
@@ -57,10 +60,11 @@ class IvrControllerTest extends TestCase
 
         $this->assertEquals(1, $menuResponse->Gather->children()->count());
         $this->assertEquals(1, $menuResponse->children()->count());
+        $this->assertEquals('GET', $menuResponse->Gather->attributes()['method']);
 
         $this->assertEquals('1', $menuResponse->Gather->attributes()['numDigits']);
         $this->assertEquals(
-            route('planet-connection', [], false),
+            route('extension-connection', [], false),
             $menuResponse->Gather->attributes()['action']
         );
     }
@@ -68,7 +72,7 @@ class IvrControllerTest extends TestCase
     public function testNonexistentOption()
     {
         // When
-        $response = $this->call('POST', route('menu-response'), ['Digits' => 99]);
+        $response = $this->call('GET', route('main-menu'), ['Digits' => 99]);
         $errorResponse = new SimpleXMLElement($response->getContent());
 
         // Then
@@ -86,7 +90,7 @@ class IvrControllerTest extends TestCase
         $newAgent->save();
 
         // When
-        $response = $this->call('POST', route('planet-connection'), ['Digits' => 2]);
+        $response = $this->call('GET', route('extension-connection'), ['Digits' => 2]);
         $menuResponse = new SimpleXMLElement($response->getContent());
 
         // Then
@@ -96,7 +100,7 @@ class IvrControllerTest extends TestCase
     public function testCallUnknownPlanet()
     {
         // When
-        $response = $this->call('POST', route('planet-connection'), ['Digits' => 99]);
+        $response = $this->call('GET', route('extension-connection'), ['Digits' => 99]);
         $menuResponse = new SimpleXMLElement($response->getContent());
 
         // Then
@@ -110,10 +114,10 @@ class IvrControllerTest extends TestCase
 
     public function testStarReturnToMenu()
     {
-        $this->call('POST', route('menu-response'), ['Digits' => '*']);
+        $this->call('GET', route('main-menu'), ['Digits' => '*']);
         $this->assertRedirectedToRoute('welcome');
 
-        $this->call('POST', route('planet-connection'), ['Digits' => '*']);
+        $this->call('GET', route('extension-connection'), ['Digits' => '*']);
         $this->assertRedirectedToRoute('welcome');
     }
 }
