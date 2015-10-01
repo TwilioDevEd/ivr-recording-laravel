@@ -85,23 +85,19 @@ class IvrController extends Controller
      */
     public function showPlanetConnection(Request $request)
     {
-        $response = new Services_Twilio_Twiml;
-        $response->say(
-            "You'll be connected shortly to your planet" .
-            $this->_thankYouMessage,
-            ['voice' => 'Alice', 'language' => 'en-GB']
-        );
-
         $selectedOption = $request->input('Digits');
 
         try {
             $numberToDial = $this->_getPlanetNumberForDigit($selectedOption);
             $response = new Services_Twilio_Twiml;
-
-            $dialCommand = $response->dial(['action' => 'voicemail callback here']);
-            $dialCommand->number(
-                $numberToDial, ['url' => 'call screening callback here']
+            $response->say(
+                "You'll be connected shortly to your planet. " .
+                $this->_thankYouMessage,
+                ['voice' => 'Alice', 'language' => 'en-GB']
             );
+
+            $dialCommand = $response->dial(['action' => '']);
+            $dialCommand->number($numberToDial, ['url' => '']);
 
             return $response;
         }
@@ -135,12 +131,12 @@ class IvrController extends Controller
 
         if ($planetExtensionExists) {
             $planetNumber = Agent::where(
-                'extension', '=', $planetExtensionExists[$digit]
+                'extension', '=', $planetExtensions[$digit]
             )->firstOrFail()->phone_number;
 
             return $planetNumber;
         } else {
-            return $this->_getReturnToMainMenuInstructions();
+            throw new ModelNotFoundException;
         }
     }
 

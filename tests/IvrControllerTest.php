@@ -1,9 +1,13 @@
 <?php
 
 use Illuminate\Foundation\Testing\WithoutMiddleware;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use App\Agent;
 
 class IvrControllerTest extends TestCase
 {
+    use DatabaseTransactions;
+
     public function testWelcomeResponse()
     {
         // When
@@ -74,13 +78,19 @@ class IvrControllerTest extends TestCase
 
     public function testCallPlanet()
     {
+        // Given
+        $fakePhoneNumber = '+1555999000';
+        $newAgent = new Agent(
+            ['extension' => 'Brodo', 'phone_number' => $fakePhoneNumber]
+        );
+        $newAgent->save();
+
         // When
         $response = $this->call('POST', route('planet-connection'), ['Digits' => 2]);
         $menuResponse = new SimpleXMLElement($response->getContent());
 
         // Then
-        $this->assertEquals(2, $menuResponse->Say->count());
-        $this->assertEquals(1, $menuResponse->Dial->count());
+        $this->assertEquals($fakePhoneNumber, $menuResponse->Dial->Number);
     }
 
     public function testCallUnknownPlanet()

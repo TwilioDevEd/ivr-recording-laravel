@@ -41,7 +41,7 @@ $app->singleton(
     App\Exceptions\Handler::class
 );
 
-if (env('APP_ENV') === 'test') {
+if (env('APP_ENV') === 'testing') {
     $app->loadEnvironmentFrom('.env.test');
 }
 
