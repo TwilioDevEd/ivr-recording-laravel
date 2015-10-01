@@ -23,6 +23,12 @@ Route::group(
             ]
         );
         Route::get(
+            '/main-menu-redirect', [
+                'as' => 'main-menu-redirect',
+                'uses' => 'MainMenuController@showMainMenuRedirect'
+            ]
+        );
+        Route::get(
             '/extension', [
                 'as' => 'extension-connection',
                 'uses' => 'IvrController@showExtensionConnection'

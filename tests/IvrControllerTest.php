@@ -38,8 +38,6 @@ class IvrControllerTest extends TestCase
         $menuString = $response->getContent();
         $menuResponse = new SimpleXMLElement($menuString);
 
-        error_log($menuString);
-
         // Then
         $this->assertEquals(3, $menuResponse->children()->count());
         $this->assertNotNull($menuResponse->Say);
@@ -73,9 +71,13 @@ class IvrControllerTest extends TestCase
     {
         // When
         $response = $this->call('GET', route('main-menu'), ['Digits' => 99]);
-        $errorResponse = new SimpleXMLElement($response->getContent());
+
+        $targetResponse = $this->call('GET', $response->getTargetUrl());
+        $errorResponse = new SimpleXMLElement($targetResponse->getContent());
 
         // Then
+        $this->assertTrue($response->isRedirect(route('main-menu-redirect')));
+
         $this->assertEquals('Returning to the main menu', $errorResponse->Say);
         $this->assertEquals(route('welcome', [], false), $errorResponse->Redirect);
     }
@@ -100,10 +102,19 @@ class IvrControllerTest extends TestCase
     public function testCallUnknownPlanet()
     {
         // When
-        $response = $this->call('GET', route('extension-connection'), ['Digits' => 99]);
+        $redirectResponse = $this->call(
+            'GET', route('extension-connection'),
+            ['Digits' => 99]
+        );
+        $response = $this->call('GET', $redirectResponse->getTargetUrl());
+
         $menuResponse = new SimpleXMLElement($response->getContent());
 
         // Then
+        $this->assertTrue(
+            $redirectResponse->isRedirect(route('main-menu-redirect'))
+        );
+
         $this->assertEquals(1, $menuResponse->Say->count());
         $this->assertEquals(0, $menuResponse->Dial->count());
 

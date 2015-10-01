@@ -35,10 +35,26 @@ class MainMenuController extends Controller
             return $selectedAction;
 
         } else {
-            $errorResponse = $this->_getReturnToMainMenuInstructions();
-            return $errorResponse;
+            return redirect()->route('main-menu-redirect');
         }
     }
+
+    /**
+     * Responds with message announcing return to the main menu
+     * @return Services_Twilio_Twiml
+     */
+    public function showMainMenuRedirect()
+    {
+        $errorResponse = new Services_Twilio_Twiml;
+        $errorResponse->say(
+            'Returning to the main menu',
+            ['voice' => 'Alice', 'language' => 'en-GB']
+        );
+        $errorResponse->redirect(route('welcome', [], false));
+
+        return $errorResponse;
+    }
+
     /**
      * Responds with instructions to mothership
      * @return Services_Twilio_Twiml
@@ -84,17 +100,5 @@ class MainMenuController extends Controller
         );
 
         return $response;
-    }
-
-    private function _getReturnToMainMenuInstructions()
-    {
-        $errorResponse = new Services_Twilio_Twiml;
-        $errorResponse->say(
-            'Returning to the main menu',
-            ['voice' => 'Alice', 'language' => 'en-GB']
-        );
-        $errorResponse->redirect(route('welcome', [], false));
-
-        return $errorResponse;
     }
 }

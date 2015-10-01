@@ -68,22 +68,8 @@ class IvrController extends Controller
             return $response;
         }
         catch (ModelNotFoundException $e){
-            $errorResponse = $this->_getReturnToMainMenuInstructions();
-            return $errorResponse;
+            return redirect()->route('main-menu-redirect');
         }
-
-    }
-
-    private function _getReturnToMainMenuInstructions()
-    {
-        $errorResponse = new Services_Twilio_Twiml;
-        $errorResponse->say(
-            'Returning to the main menu',
-            ['voice' => 'Alice', 'language' => 'en-GB']
-        );
-        $errorResponse->redirect(route('welcome', [], false));
-
-        return $errorResponse;
     }
 
     private function _getPlanetNumberForDigit($digit)
