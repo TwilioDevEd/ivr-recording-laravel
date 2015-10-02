@@ -43,13 +43,13 @@ Route::group(
             ]
         );
         Route::post(
-            '/agent/screenCall', [
+            '/agent/screen-call', [
                 'as' => 'screen-call',
                 'uses' => 'AgentCallController@screenCall'
             ]
         );
         Route::get(
-            '/agent/connectMessage', [
+            '/agent/connect-message', [
                 'as' => 'connect-message',
                 'uses' => 'AgentCallController@showConnectMessage'
             ]
@@ -61,7 +61,7 @@ Route::group(
             ]
         );
         Route::post(
-            'recording', [
+            '/agent/{agent}/recording', [
                 'as' => 'store-recording',
                 'uses' => 'RecordingController@storeRecording'
             ]
