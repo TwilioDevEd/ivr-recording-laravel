@@ -11,7 +11,7 @@ env:
   global:
   - APP_ENV=testing
   - DB_CONNECTION=pgsql
-  - DATABASE_URL=postgres://postgres:@localhost:5432/recordings_test
+  - DATABASE_URL=postgres:///
 before_script:
 - psql -c 'create database recordings_test;' -U postgres
 - php artisan migrate
