@@ -1,9 +1,9 @@
-# IVR Phone Tree: IVR for beginners. powered by Twilio - Laravel
+# IVR Phone Tree: IVR, call screening and recording for beginners. powered by Twilio - Laravel
 
 An example application implementing an automated phone line using
 Twilio and Laravel.
 
-[![Build Status](https://travis-ci.org/TwilioDevEd/ivr-phone-tree-laravel.svg?branch=master)](https://travis-ci.org/TwilioDevEd/ivr-phone-tree-laravel)
+[![Build Status](https://travis-ci.org/TwilioDevEd/ivr-recording-laravel.svg?branch=master)](https://travis-ci.org/TwilioDevEd/ivr-recording-laravel)
 
 ## Run the application
 
@@ -17,6 +17,26 @@ Twilio and Laravel.
 
    ```bash
    $ php artisan serve
+   ```
+1. The application uses PostgreSQL as the persistence layer. If you
+   don't have it already, you should install it. The easiest way is by
+   using [Postgres.app](http://postgresapp.com/).
+1. Create a database.
+
+   ```bash
+   $ createdb ivr_recording
+   ```
+1. Copy the sample configuration file and edit it to match your configuration.
+
+    ```bash
+    $ cp .env.example .env
+    ```
+
+   You'll need to set `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, and `DB_PASSWORD`.
+
+1. Run the migrations.
+   ```bash
+   $ php artisan migrate
    ```
 1. Expose the application to the wider Internet using [ngrok](https://ngrok.com/)
 
@@ -36,15 +56,21 @@ This application uses this Twilio helper library:
 
 ## Run the tests
 
-Run at the top-level directory:
+1. Configure a test database in `.env.test`.
+1. Run the database migrations for the test database
+   ```bash
+   $ APP_ENV=testing php artisan migrate
+   ```
 
-```
-$ phpunit --coverage-text
-```
+1. Run at the top-level directory:
+
+   ```bash
+   $ phpunit --coverage-text
+   ```
 
 If your PHP installation doesn't have `xdebug` support then simply run
-the tests without coverage reporting
+the tests without coverage reporting:
 
-```
+```bash
 $ phpunit
 ```
