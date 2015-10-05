@@ -8,7 +8,7 @@ install:
 - pecl install PDO_PGSQL
 - composer install
 scripts:
-  - phpunit --coverage-clover storage/logs/clover.xml
+  - mkdir -p build/logs
 env:
   global:
   - APP_ENV=testing
@@ -19,5 +19,3 @@ env:
 before_script:
 - psql -c 'create database recording_test;' -U postgres
 - php artisan migrate
-after_script:
-- php vendor/bin/coveralls -v
