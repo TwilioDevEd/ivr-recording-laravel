@@ -9,6 +9,22 @@ use App\Recording;
 
 class RecordingController extends Controller
 {
+
+    /**
+     * Shows an index of existings recordings
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
+    {
+        $allRecordings = Recording::all();
+
+        return response()->view(
+            'recordings.index',
+            ['recordings' => $allRecordings]
+        );
+    }
+
     /**
      * Store a new recording from callback
      *

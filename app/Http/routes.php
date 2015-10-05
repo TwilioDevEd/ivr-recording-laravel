@@ -10,6 +10,7 @@
 | and give it the controller to call when that URI is requested.
 |
 */
+Route::resource('recording', 'RecordingController', ['only' => ['index']]);
 Route::group(
     ['prefix' => 'ivr', 'middleware' => 'starReturn'], function () {
         Route::post(
