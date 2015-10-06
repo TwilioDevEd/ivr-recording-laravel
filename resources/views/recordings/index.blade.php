@@ -2,7 +2,8 @@
 
 
 @section('content')
-<h2>Recordings</h2>
+<h2>Recordings for extension: {{ $agent->extension }}</h2>
+Phone number: {{ $agent->phone_number }}
 <hr/>
 <table class="table">
     <thead>

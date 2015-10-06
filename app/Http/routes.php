@@ -69,3 +69,9 @@ Route::group(
         );
     }
 );
+Route::get(
+    '/recording', [
+        'as' => 'agent-recordings',
+        'uses' => 'Recordingcontroller@indexByAgent'
+    ]
+);

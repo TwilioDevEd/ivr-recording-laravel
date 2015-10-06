@@ -13,11 +13,6 @@ Twilio and Laravel.
    ```bash
    $ composer update
    ```
-1. Run the application using Artisan.
-
-   ```bash
-   $ php artisan serve
-   ```
 1. The application uses PostgreSQL as the persistence layer. If you
    don't have it already, you should install it. The easiest way is by
    using [Postgres.app](http://postgresapp.com/).
@@ -37,6 +32,11 @@ Twilio and Laravel.
 1. Run the migrations.
    ```bash
    $ php artisan migrate
+   ```
+1. Run the application using Artisan.
+
+   ```bash
+   $ php artisan serve
    ```
 1. Expose the application to the wider Internet using [ngrok](https://ngrok.com/)
 
