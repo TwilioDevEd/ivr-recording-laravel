@@ -1,0 +1,208 @@
+.chapter(data-title='IVR Phone Tree')
+  .step(data-file='app/Http/routes.php')
+    :markdown
+      ## About this application
+
+      ![Extra Terrestrial Phone Home
+      Service](http://howtodocs.s3.amazonaws.com/logo-et-phone2.png)
+
+      This [Laravel](http://laravel.com/) sample application is
+      modeled after a typical call center experience, but with more [Reese's
+      Pieces](https://en.wikipedia.org/wiki/Reese%27s_Pieces#ET:_The_Extra-
+      Terrestrial).
+
+      Stranded aliens can call a phone number and receive instructions on how
+      to get out of earth safely, or call their home planet
+      directly[.](http://bit.ly/asogi) In this tutorial, we'll show you the
+      key bits of code that allow an agent to send a caller to voicemail, and
+      later read transcripts and listen to voicemails.
+
+      To run this sample app yourself, [download the code and follow the
+      instructions on GitHub](https://github.com/TwilioDevEd/ivr-recording-laravel).
+
+      Let's get started! Click the right arrow above to move to the next step
+      of the tutorial.
+
+      ---
+
+      **See Also:**
+      * [ET IVR Part One: Phone Trees](https://www.twilio.com/docs/howto/walkthrough/ivr-phone-larave/php/laravel#0)
+      * [Laravel documentation](http://laravel.com/docs/5.1)
+      * [The twilio-php helper library Quickstart](https://twilio-php.readthedocs.org/en/latest/#quickstart)
+
+  .step(data-file='app/Http/Controllers/ExtensionController.php', data-highlight='21-30')
+    :markdown
+      ## Route the call to an agent
+
+      When our caller chooses a planet we need to figure out where to route the
+      call. Depending on her input we will route this call to an extension. In
+      this case an extension will be used to look up an Agent, so any string
+      can be used to define an extension. 
+
+      Once we lookup the `Agent` we can `<Dial>` the agent's phone number and try
+      and connect the call. Let's dive in a little bit more into how we lookup
+      the Agent.
+
+      ---
+
+      **See Also:**
+      * [TwiML Creation with twilio-php](https://twilio-php.readthedocs.org/en/latest/usage/twiml.html)
+      * [TwiML Dial](https://www.twilio.com/docs/api/twiml/dial)
+      
+  .step(data-file='app/Http/Controllers/ExtensionController.php', data-highlight='51-69')
+    :markdown
+      ## Looking up an Agent
+
+      In this case the Agent model is very simple. The migration used to create it:
+
+      ```php
+      Schema::create(
+          'agents', function (Blueprint $table) {
+              $table->increments('id');
+              $table->string('phone_number');
+              $table->string('extension');
+              $table->timestamps();
+          }
+      );
+      ```
+
+      We have a handle or `extension` that we can use to lookup and Agent, and
+      we have a `phone_number` that we will call.
+
+      ---
+
+      **See Also:**
+      * [Eloquent: Retrieving Single Models/Aggregates](http://laravel.com/docs/5.1/eloquent#retrieving-single-models)
+
+  .step(data-file='app/Http/Controllers/ExtensionController.php', data-highlight='32-48')
+    :markdown
+      ## An agent screens the call
+
+      By passing a `url` to the `Dial` > [`Number`](https://www.twilio.com/docs/api/twiml/number)
+      TwiML tag, we are telling Twilio to make a POST request to the
+      `new-call` route _after_ the agent has picked up but _before_
+      connecting the two parties. 
+
+      Essentially we are telling Twilio to execute some TwiML that only the
+      agent will hear. In this case the TwiML instructs the agent to press any
+      number to accept the call. This is processed through the
+      [Gather](https://www.twilio.com/docs/api/twiml/gather) callback.
+
+      ---
+
+      **See Also:**
+      * [TwiML Say verb](https://www.twilio.com/docs/api/twiml/say)
+
+  .step(data-file='app/Http/Controllers/AgentCallController.php', data-highlight='68-106')
+    :markdown
+      ## Connect the Caller to the Agent
+
+      If the agent responds to the call screen by entering any digit
+      the response will be processed by our `connect-message` route
+      `showConnectMessage` which will `Say` a quick message, then
+      continue with the original `Dial` command and connect the two
+      parties.
+
+      If the agent instead does not respond, the Dial verb will end
+      and Twilio will continue processing the TwiML document.
+
+      ---
+
+      **See Also:**
+      * [The Gather action attribute](https://www.twilio.com/docs/api/twiml/gather#attributes-action)
+
+  .step(data-file='app/Http/Controllers/AgentCallController.php', data-highlight='12-49')
+    :markdown
+      ## Send the Caller to Voicemail
+
+      When Twilio makes a request to our voicemail controller, it will pass a
+      [`DialCallStatus`](https://www.twilio.com/docs/api/twiml/dial#attributes-action-dial-call-status-values)
+      which will tell us if the call was successful. If it was "completed" we
+      hangup — otherwise we need to `Say` a quick prompt and then
+      [`Record`](https://www.twilio.com/docs/api/twiml/record) a voicemail from
+      the caller. 
+
+      We also specify an `action` for `Record`. This route will be
+      called after the recording has finished. It will say goodbye and
+      hangup.
+
+      ---
+
+      **See Also:**
+      * [Twilio Request
+        parameters](https://www.twilio.com/docs/api/twiml/twilio_request#synchronous-request-parameters)
+      * [The TwiML Hangup verb](https://www.twilio.com/docs/api/twiml/hangup)
+
+  .step(data-file='app/Http/Controllers/AgentCallController.php', data-highlight='29-37')
+    :markdown
+      ## Record the Caller
+
+      When we tell Twilio to Record we have a few
+      [options](https://www.twilio.com/docs/api/twiml/record#attributes) we can
+      pass to the `Record` verb. 
+
+      Here we instruct Record to stop the recording at 20 seconds, to
+      [`transcribe`](https://www.twilio.com/docs/api/twiml/record#attributes-transcribe)
+      the call, and where to send the transcription when it's
+      complete. Adding the `transcribeCallback` attribute to
+      `<Record>` implies `'transcribe' => true`.
+
+      Notice we redirect to an URL that is specific to an agent. This
+      is a convenient way to specify which agent was called to produce
+      this voice message. This way we can also save the agent associated
+      together long with the voicemail.
+
+      ---
+
+      **See Also:**
+      * [Twilio transcribeCallBack](https://www.twilio.com/docs/api/twiml/record#attributes-transcribe-callback)
+      * [Route parameters](http://laravel.com/docs/master/routing#route-parameters)
+
+  .step(data-file='app/Http/Controllers/RecordingController.php')
+    :markdown
+      ## View an Agent's Voicemails
+
+      Once we look up the Agent, all we need to do is display all of
+      her recordings. We simply bind the recordings to a view that is
+      then rendered.
+
+      It is possible to look up recordings via the Twilio REST API,
+      but since we have all of the data we need in the
+      `transcribeCallBack` we can easily store it ourselves and save a
+      roundtrip.
+
+      ---
+
+      **See Also:**
+      * [Twilio REST API: Recordings](https://www.twilio.com/docs/api/rest/recording)
+      * [Twilio REST API: Transcription Resource](https://www.twilio.com/docs/api/rest/transcription)
+
+  .step
+    :markdown
+      ## Where to next?
+
+      That's it! We've just implemented an IVR with real Agents, call
+      screening and voicemail. If you're a PHP developer working with
+      Twilio, you might want to check out these other tutorials.
+
+      [**Part 1 of this Tutorial: ET Phone Home Service - IVR Phone
+      Trees**](//www.twilio.com/docs/howto/walkthrough/ivr-phone-
+      tree/php/laravel#0)
+
+      Increase your rate of response by automating the workflows that
+      are key to your business.
+
+      [**Appointment
+      Reminders**](https://www.twilio.com/docs/howto/walkthrough/appointment-
+      reminders/php/laravel)
+
+      Send your customers a text message when they have an upcoming
+      appointment - this tutorial shows you how to do it from a
+      background job.
+
+      ### Did this help?
+
+      Thanks for checking out this tutorial! If you have any feedback
+      to share with us, we'd love to hear it. Tweet
+      [@twilio](http://twitter.com/twilio) to let us know what you
+      think.

@@ -1,0 +1,170 @@
+<!DOCTYPE html><html><head><title>IVR: Call screening and Voicemail</title><style>body, html {
+  height:100%;
+  width:100%;
+  padding:0;
+  margin:0;
+  overflow:hidden;
+  background-color:#ddd;
+}
+.wrapper {
+  height:100%;
+  width:100%;
+}</style><link rel="shortcut icon" href="//twilio.com/bundles/marketing/img/favicons/favicon.ico"><link rel="apple-touch-icon" href="//twilio.com/bundles/marketing/img/favicons/favicon_57.png"><link rel="apple-touch-icon" sizes="72x72" href="//twilio.com/bundles/marketing/img/favicons/favicon_72.png"><link rel="apple-touch-icon" sizes="114x114" href="//twilio.com/bundles/marketing/img/favicons/favicon_114.png"><link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css"><link rel="stylesheet" href="viewsaurus.css"></head><body><div class="wrapper"><div id="viewsaurus" data-title="IVR: Call screening and Voicemail"><div class="saurus-panes"><div class="saurus-prose"><div class="saurus-prose-header"><div class="title-outer"><span class="step-title">IVR: Call screening and Voicemail</span></div></div><div class="saurus-nav-buttons"><div class="saurus-nav-button nav-overview"><div class="saurus-nav-button-inner"><i class="fa fa-fw fa-list"></i></div><div class="nav-divider"></div></div><div class="saurus-nav-button nav-previous"><div class="saurus-nav-button-inner"><a href=""> <i class="fa fa-fw fa-play fa-rotate-180"></i></a></div><div class="nav-divider"></div></div><div class="saurus-nav-button nav-next clickable"><div class="saurus-nav-button-inner"><a href="#1"> <i class="fa fa-fw fa-play"></i></a></div></div><div class="saurus-next-title"><span class="next-title-inner"></span></div></div><div class="saurus-progress-bar"></div><div class="saurus-start"><p>IVRs (interactive voice response) are automated phone systems that can facilitate communication between callers and businesses. In this tutorial you will learn how to screen and send callers to voicemail if an agent is busy.</p><a href="#0">Start Tutorial</a></div><div class="saurus-content"><div data-title="IVR Phone Tree" class="chapter"><div data-file="app/Http/routes.php" class="step"><h2 id="about-this-application">About this application</h2>
+<p><img src="http://howtodocs.s3.amazonaws.com/logo-et-phone2.png" alt="Extra Terrestrial Phone Home
+Service"></p>
+<p>This <a href="http://laravel.com/">Laravel</a> sample application is
+modeled after a typical call center experience, but with more <a href="https://en.wikipedia.org/wiki/Reese%27s_Pieces#ET:_The_Extra-
+Terrestrial">Reese&#39;s
+Pieces</a>.</p>
+<p>Stranded aliens can call a phone number and receive instructions on how
+to get out of earth safely, or call their home planet
+directly<a href="http://bit.ly/asogi">.</a> In this tutorial, we&#39;ll show you the
+key bits of code that allow an agent to send a caller to voicemail, and
+later read transcripts and listen to voicemails.</p>
+<p>To run this sample app yourself, <a href="https://github.com/TwilioDevEd/ivr-recording-laravel">download the code and follow the
+instructions on GitHub</a>.</p>
+<p>Let&#39;s get started! Click the right arrow above to move to the next step
+of the tutorial.</p>
+<hr>
+<p><strong>See Also:</strong></p>
+<ul>
+<li><a href="https://www.twilio.com/docs/howto/walkthrough/ivr-phone-larave/php/laravel#0">ET IVR Part One: Phone Trees</a></li>
+<li><a href="http://laravel.com/docs/5.1">Laravel documentation</a></li>
+<li><a href="https://twilio-php.readthedocs.org/en/latest/#quickstart">The twilio-php helper library Quickstart</a></li>
+</ul>
+</div><div data-file="app/Http/Controllers/ExtensionController.php" data-highlight="21-30" class="step"><h2 id="route-the-call-to-an-agent">Route the call to an agent</h2>
+<p>When our caller chooses a planet we need to figure out where to route the
+call. Depending on her input we will route this call to an extension. In
+this case an extension will be used to look up an Agent, so any string
+can be used to define an extension. </p>
+<p>Once we lookup the <code>Agent</code> we can <code>&lt;Dial&gt;</code> the agent&#39;s phone number and try
+and connect the call. Let&#39;s dive in a little bit more into how we lookup
+the Agent.</p>
+<hr>
+<p><strong>See Also:</strong></p>
+<ul>
+<li><a href="https://twilio-php.readthedocs.org/en/latest/usage/twiml.html">TwiML Creation with twilio-php</a></li>
+<li><a href="https://www.twilio.com/docs/api/twiml/dial">TwiML Dial</a></li>
+</ul>
+</div><div data-file="app/Http/Controllers/ExtensionController.php" data-highlight="51-69" class="step"><h2 id="looking-up-an-agent">Looking up an Agent</h2>
+<p>In this case the Agent model is very simple. The migration used to create it:</p>
+<pre><code class="cm-s-monokai lang-php">Schema::create(
+    &#39;agents&#39;, function (Blueprint $table) {
+        $table-&gt;increments(&#39;id&#39;);
+        $table-&gt;string(&#39;phone_number&#39;);
+        $table-&gt;string(&#39;extension&#39;);
+        $table-&gt;timestamps();
+    }
+);
+</code></pre>
+<p>We have a handle or <code>extension</code> that we can use to lookup and Agent, and
+we have a <code>phone_number</code> that we will call.</p>
+<hr>
+<p><strong>See Also:</strong></p>
+<ul>
+<li><a href="http://laravel.com/docs/5.1/eloquent#retrieving-single-models">Eloquent: Retrieving Single Models/Aggregates</a></li>
+</ul>
+</div><div data-file="app/Http/Controllers/ExtensionController.php" data-highlight="32-48" class="step"><h2 id="an-agent-screens-the-call">An agent screens the call</h2>
+<p>By passing a <code>url</code> to the <code>Dial</code> &gt; <a href="https://www.twilio.com/docs/api/twiml/number"><code>Number</code></a>
+TwiML tag, we are telling Twilio to make a POST request to the
+<code>new-call</code> route <em>after</em> the agent has picked up but <em>before</em>
+connecting the two parties. </p>
+<p>Essentially we are telling Twilio to execute some TwiML that only the
+agent will hear. In this case the TwiML instructs the agent to press any
+number to accept the call. This is processed through the
+<a href="https://www.twilio.com/docs/api/twiml/gather">Gather</a> callback.</p>
+<hr>
+<p><strong>See Also:</strong></p>
+<ul>
+<li><a href="https://www.twilio.com/docs/api/twiml/say">TwiML Say verb</a></li>
+</ul>
+</div><div data-file="app/Http/Controllers/AgentCallController.php" data-highlight="68-106" class="step"><h2 id="connect-the-caller-to-the-agent">Connect the Caller to the Agent</h2>
+<p>If the agent responds to the call screen by entering any digit
+the response will be processed by our <code>connect-message</code> route
+<code>showConnectMessage</code> which will <code>Say</code> a quick message, then
+continue with the original <code>Dial</code> command and connect the two
+parties.</p>
+<p>If the agent instead does not respond, the Dial verb will end
+and Twilio will continue processing the TwiML document.</p>
+<hr>
+<p><strong>See Also:</strong></p>
+<ul>
+<li><a href="https://www.twilio.com/docs/api/twiml/gather#attributes-action">The Gather action attribute</a></li>
+</ul>
+</div><div data-file="app/Http/Controllers/AgentCallController.php" data-highlight="12-49" class="step"><h2 id="send-the-caller-to-voicemail">Send the Caller to Voicemail</h2>
+<p>When Twilio makes a request to our voicemail controller, it will pass a
+<a href="https://www.twilio.com/docs/api/twiml/dial#attributes-action-dial-call-status-values"><code>DialCallStatus</code></a>
+which will tell us if the call was successful. If it was &quot;completed&quot; we
+hangup — otherwise we need to <code>Say</code> a quick prompt and then
+<a href="https://www.twilio.com/docs/api/twiml/record"><code>Record</code></a> a voicemail from
+the caller. </p>
+<p>We also specify an <code>action</code> for <code>Record</code>. This route will be
+called after the recording has finished. It will say goodbye and
+hangup.</p>
+<hr>
+<p><strong>See Also:</strong></p>
+<ul>
+<li><a href="https://www.twilio.com/docs/api/twiml/twilio_request#synchronous-request-parameters">Twilio Request
+parameters</a></li>
+<li><a href="https://www.twilio.com/docs/api/twiml/hangup">The TwiML Hangup verb</a></li>
+</ul>
+</div><div data-file="app/Http/Controllers/AgentCallController.php" data-highlight="29-37" class="step"><h2 id="record-the-caller">Record the Caller</h2>
+<p>When we tell Twilio to Record we have a few
+<a href="https://www.twilio.com/docs/api/twiml/record#attributes">options</a> we can
+pass to the <code>Record</code> verb. </p>
+<p>Here we instruct Record to stop the recording at 20 seconds, to
+<a href="https://www.twilio.com/docs/api/twiml/record#attributes-transcribe"><code>transcribe</code></a>
+the call, and where to send the transcription when it&#39;s
+complete. Adding the <code>transcribeCallback</code> attribute to
+<code>&lt;Record&gt;</code> implies <code>&#39;transcribe&#39; =&gt; true</code>.</p>
+<p>Notice we redirect to an URL that is specific to an agent. This
+is a convenient way to specify which agent was called to produce
+this voice message. This way we can also save the agent associated
+together long with the voicemail.</p>
+<hr>
+<p><strong>See Also:</strong></p>
+<ul>
+<li><a href="https://www.twilio.com/docs/api/twiml/record#attributes-transcribe-callback">Twilio transcribeCallBack</a></li>
+<li><a href="http://laravel.com/docs/master/routing#route-parameters">Route parameters</a></li>
+</ul>
+</div><div data-file="app/Http/Controllers/RecordingController.php" class="step"><h2 id="view-an-agent-s-voicemails">View an Agent&#39;s Voicemails</h2>
+<p>Once we look up the Agent, all we need to do is display all of
+her recordings. We simply bind the recordings to a view that is
+then rendered.</p>
+<p>It is possible to look up recordings via the Twilio REST API,
+but since we have all of the data we need in the
+<code>transcribeCallBack</code> we can easily store it ourselves and save a
+roundtrip.</p>
+<hr>
+<p><strong>See Also:</strong></p>
+<ul>
+<li><a href="https://www.twilio.com/docs/api/rest/recording">Twilio REST API: Recordings</a></li>
+<li><a href="https://www.twilio.com/docs/api/rest/transcription">Twilio REST API: Transcription Resource</a></li>
+</ul>
+</div><div class="step"><h2 id="where-to-next-">Where to next?</h2>
+<p>That&#39;s it! We&#39;ve just implemented an IVR with real Agents, call
+screening and voicemail. If you&#39;re a PHP developer working with
+Twilio, you might want to check out these other tutorials.</p>
+<p><a href="//www.twilio.com/docs/howto/walkthrough/ivr-phone-
+tree/php/laravel#0"><strong>Part 1 of this Tutorial: ET Phone Home Service - IVR Phone
+Trees</strong></a></p>
+<p>Increase your rate of response by automating the workflows that
+are key to your business.</p>
+<p><a href="https://www.twilio.com/docs/howto/walkthrough/appointment-
+reminders/php/laravel"><strong>Appointment
+Reminders</strong></a></p>
+<p>Send your customers a text message when they have an upcoming
+appointment - this tutorial shows you how to do it from a
+background job.</p>
+<h3 id="did-this-help-">Did this help?</h3>
+<p>Thanks for checking out this tutorial! If you have any feedback
+to share with us, we&#39;d love to hear it. Tweet
+<a href="http://twitter.com/twilio">@twilio</a> to let us know what you
+think.</p>
+</div></div>
+<div class="saurus-files" style="display:none;"><textarea class="saurus-file" data-file="app/Http/routes.php" data-mode="php">PD9waHAKCi8qCnwtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQp8IEFwcGxpY2F0aW9uIFJvdXRlcwp8LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KfAp8IEhlcmUgaXMgd2hlcmUgeW91IGNhbiByZWdpc3RlciBhbGwgb2YgdGhlIHJvdXRlcyBmb3IgYW4gYXBwbGljYXRpb24uCnwgSXQncyBhIGJyZWV6ZS4gU2ltcGx5IHRlbGwgTGFyYXZlbCB0aGUgVVJJcyBpdCBzaG91bGQgcmVzcG9uZCB0bwp8IGFuZCBnaXZlIGl0IHRoZSBjb250cm9sbGVyIHRvIGNhbGwgd2hlbiB0aGF0IFVSSSBpcyByZXF1ZXN0ZWQuCnwKKi8KUm91dGU6OnJlc291cmNlKCdyZWNvcmRpbmcnLCAnUmVjb3JkaW5nQ29udHJvbGxlcicsIFsnb25seScgPT4gWydpbmRleCddXSk7ClJvdXRlOjpncm91cCgKICAgIFsncHJlZml4JyA9PiAnaXZyJywgJ21pZGRsZXdhcmUnID0+ICdzdGFyUmV0dXJuJ10sIGZ1bmN0aW9uICgpIHsKICAgICAgICBSb3V0ZTo6cG9zdCgKICAgICAgICAgICAgJy93ZWxjb21lJywgWwogICAgICAgICAgICAgICAgJ2FzJyA9PiAnd2VsY29tZScsCiAgICAgICAgICAgICAgICAndXNlcycgPT4gJ0l2ckNvbnRyb2xsZXJAc2hvd1dlbGNvbWUnCiAgICAgICAgICAgIF0KICAgICAgICApOwogICAgICAgIFJvdXRlOjpnZXQoCiAgICAgICAgICAgICcvbWFpbi1tZW51JywgWwogICAgICAgICAgICAgICAgJ2FzJyA9PiAnbWFpbi1tZW51JywKICAgICAgICAgICAgICAgICd1c2VzJyA9PiAnTWFpbk1lbnVDb250cm9sbGVyQHNob3dNZW51UmVzcG9uc2UnCiAgICAgICAgICAgIF0KICAgICAgICApOwogICAgICAgIFJvdXRlOjpnZXQoCiAgICAgICAgICAgICcvbWFpbi1tZW51LXJlZGlyZWN0JywgWwogICAgICAgICAgICAgICAgJ2FzJyA9PiAnbWFpbi1tZW51LXJlZGlyZWN0JywKICAgICAgICAgICAgICAgICd1c2VzJyA9PiAnTWFpbk1lbnVDb250cm9sbGVyQHNob3dNYWluTWVudVJlZGlyZWN0JwogICAgICAgICAgICBdCiAgICAgICAgKTsKICAgICAgICBSb3V0ZTo6Z2V0KAogICAgICAgICAgICAnL2V4dGVuc2lvbicsIFsKICAgICAgICAgICAgICAgICdhcycgPT4gJ2V4dGVuc2lvbi1jb25uZWN0aW9uJywKICAgICAgICAgICAgICAgICd1c2VzJyA9PiAnRXh0ZW5zaW9uQ29udHJvbGxlckBzaG93RXh0ZW5zaW9uQ29ubmVjdGlvbicKICAgICAgICAgICAgXQogICAgICAgICk7CiAgICAgICAgUm91dGU6OnBvc3QoCiAgICAgICAgICAgICcvYWdlbnQve2FnZW50fS9jYWxsJywgWwogICAgICAgICAgICAgICAgJ2FzJyA9PiAnbmV3LWNhbGwnLAogICAgICAgICAgICAgICAgJ3VzZXMnID0+ICdBZ2VudENhbGxDb250cm9sbGVyQG5ld0NhbGwnCiAgICAgICAgICAgIF0KICAgICAgICApOwogICAgICAgIFJvdXRlOjpwb3N0KAogICAgICAgICAgICAnL2FnZW50L3NjcmVlbi1jYWxsJywgWwogICAgICAgICAgICAgICAgJ2FzJyA9PiAnc2NyZWVuLWNhbGwnLAogICAgICAgICAgICAgICAgJ3VzZXMnID0+ICdBZ2VudENhbGxDb250cm9sbGVyQHNjcmVlbkNhbGwnCiAgICAgICAgICAgIF0KICAgICAgICApOwogICAgICAgIFJvdXRlOjpnZXQoCiAgICAgICAgICAgICcvYWdlbnQvY29ubmVjdC1tZXNzYWdlJywgWwogICAgICAgICAgICAgICAgJ2FzJyA9PiAnY29ubmVjdC1tZXNzYWdlJywKICAgICAgICAgICAgICAgICd1c2VzJyA9PiAnQWdlbnRDYWxsQ29udHJvbGxlckBzaG93Q29ubmVjdE1lc3NhZ2UnCiAgICAgICAgICAgIF0KICAgICAgICApOwogICAgICAgIFJvdXRlOjpnZXQoCiAgICAgICAgICAgICcvYWdlbnQvaGFuZ3VwJywgWwogICAgICAgICAgICAgICAgJ2FzJyA9PiAnaGFuZ3VwJywKICAgICAgICAgICAgICAgICd1c2VzJyA9PiAnQWdlbnRDYWxsQ29udHJvbGxlckBzaG93SGFuZ3VwJwogICAgICAgICAgICBdCiAgICAgICAgKTsKICAgICAgICBSb3V0ZTo6cG9zdCgKICAgICAgICAgICAgJy9hZ2VudC97YWdlbnR9L3JlY29yZGluZycsIFsKICAgICAgICAgICAgICAgICdhcycgPT4gJ3N0b3JlLXJlY29yZGluZycsCiAgICAgICAgICAgICAgICAndXNlcycgPT4gJ1JlY29yZGluZ0NvbnRyb2xsZXJAc3RvcmVSZWNvcmRpbmcnCiAgICAgICAgICAgIF0KICAgICAgICApOwogICAgfQopOwo=</textarea>
+<textarea class="saurus-file" data-file="app/Http/Controllers/ExtensionController.php" data-mode="php">PD9waHAKCm5hbWVzcGFjZSBBcHBcSHR0cFxDb250cm9sbGVyczsKCnVzZSBJbGx1bWluYXRlXEh0dHBcUmVxdWVzdDsKdXNlIElsbHVtaW5hdGVcRGF0YWJhc2VcRWxvcXVlbnRcTW9kZWxOb3RGb3VuZEV4Y2VwdGlvbjsKdXNlIEFwcFxIdHRwXFJlcXVlc3RzOwp1c2UgQXBwXEh0dHBcQ29udHJvbGxlcnNcQ29udHJvbGxlcjsKdXNlIEFwcFxBZ2VudDsKdXNlIFNlcnZpY2VzX1R3aWxpb19Ud2ltbDsKCmNsYXNzIEV4dGVuc2lvbkNvbnRyb2xsZXIgZXh0ZW5kcyBDb250cm9sbGVyCnsKICAgIC8qKgogICAgICogUmVzcG9uZHMgd2l0aCBhIDxEaWFsPiB0byB0aGUgY2FsbGVyJ3MgcGxhbmV0CiAgICAgKgogICAgICogQHJldHVybiBcSWxsdW1pbmF0ZVxIdHRwXFJlc3BvbnNlCiAgICAgKi8KICAgIHB1YmxpYyBmdW5jdGlvbiBzaG93RXh0ZW5zaW9uQ29ubmVjdGlvbihSZXF1ZXN0ICRyZXF1ZXN0KQogICAgewogICAgICAgICRzZWxlY3RlZE9wdGlvbiA9ICRyZXF1ZXN0LT5pbnB1dCgnRGlnaXRzJyk7CgogICAgICAgIHRyeSB7CiAgICAgICAgICAgICRhZ2VudCA9ICR0aGlzLT5fZ2V0QWdlbnRGb3JEaWdpdCgkc2VsZWN0ZWRPcHRpb24pOwogICAgICAgIH0KICAgICAgICBjYXRjaCAoTW9kZWxOb3RGb3VuZEV4Y2VwdGlvbiAkZSl7CiAgICAgICAgICAgIHJldHVybiByZWRpcmVjdCgpLT5yb3V0ZSgnbWFpbi1tZW51LXJlZGlyZWN0Jyk7CiAgICAgICAgfQoKICAgICAgICAkbnVtYmVyVG9EaWFsID0gJGFnZW50LT5waG9uZV9udW1iZXI7CgogICAgICAgICRyZXNwb25zZSA9IG5ldyBTZXJ2aWNlc19Ud2lsaW9fVHdpbWw7CiAgICAgICAgJHJlc3BvbnNlLT5zYXkoCiAgICAgICAgICAgICJZb3UnbGwgYmUgY29ubmVjdGVkIHNob3J0bHkgdG8geW91ciBwbGFuZXQuICIgLgogICAgICAgICAgICAkdGhpcy0+X3RoYW5rWW91TWVzc2FnZSwKICAgICAgICAgICAgWyd2b2ljZScgPT4gJ2FsaWNlJywgJ2xhbmd1YWdlJyA9PiAnZW4tR0InXQogICAgICAgICk7CgogICAgICAgICRkaWFsQ29tbWFuZCA9ICRyZXNwb25zZS0+ZGlhbCgKICAgICAgICAgICAgWydhY3Rpb24nID0+IHJvdXRlKCduZXctY2FsbCcsIFsnYWdlbnQnID0+ICRhZ2VudC0+aWRdLCBmYWxzZSksCiAgICAgICAgICAgICAnbWV0aG9kJyA9PiAnUE9TVCddCiAgICAgICAgKTsKICAgICAgICAkZGlhbENvbW1hbmQtPm51bWJlcigKICAgICAgICAgICAgJG51bWJlclRvRGlhbCwKICAgICAgICAgICAgWyd1cmwnID0+IHJvdXRlKCdzY3JlZW4tY2FsbCcsIFtdLCBmYWxzZSldCiAgICAgICAgKTsKCiAgICAgICAgcmV0dXJuICRyZXNwb25zZTsKICAgIH0KCiAgICBwcml2YXRlIGZ1bmN0aW9uIF9nZXRBZ2VudEZvckRpZ2l0KCRkaWdpdCkKICAgIHsKICAgICAgICAkcGxhbmV0RXh0ZW5zaW9ucyA9IFsKICAgICAgICAgICAgJzInID0+ICdCcm9kbycsCiAgICAgICAgICAgICczJyA9PiAnRGFnb2JhaCcsCiAgICAgICAgICAgICc0JyA9PiAnT29iZXInCiAgICAgICAgXTsKICAgICAgICAkcGxhbmV0RXh0ZW5zaW9uRXhpc3RzID0gaXNzZXQoJHBsYW5ldEV4dGVuc2lvbnNbJGRpZ2l0XSk7CgogICAgICAgIGlmICgkcGxhbmV0RXh0ZW5zaW9uRXhpc3RzKSB7CiAgICAgICAgICAgICRhZ2VudCA9IEFnZW50Ojp3aGVyZSgKICAgICAgICAgICAgICAgICdleHRlbnNpb24nLCAnPScsICRwbGFuZXRFeHRlbnNpb25zWyRkaWdpdF0KICAgICAgICAgICAgKS0+Zmlyc3RPckZhaWwoKTsKCiAgICAgICAgICAgIHJldHVybiAkYWdlbnQ7CiAgICAgICAgfSBlbHNlIHsKICAgICAgICAgICAgdGhyb3cgbmV3IE1vZGVsTm90Rm91bmRFeGNlcHRpb247CiAgICAgICAgfQogICAgfQp9Cg==</textarea>
+<textarea class="saurus-file" data-file="app/Http/Controllers/AgentCallController.php" data-mode="php">PD9waHAKCm5hbWVzcGFjZSBBcHBcSHR0cFxDb250cm9sbGVyczsKCnVzZSBJbGx1bWluYXRlXEh0dHBcUmVxdWVzdDsKdXNlIEFwcFxIdHRwXFJlcXVlc3RzOwp1c2UgQXBwXEh0dHBcQ29udHJvbGxlcnNcQ29udHJvbGxlcjsKdXNlIFNlcnZpY2VzX1R3aWxpb19Ud2ltbDsKCmNsYXNzIEFnZW50Q2FsbENvbnRyb2xsZXIgZXh0ZW5kcyBDb250cm9sbGVyCnsKICAgIC8qKgogICAgICogSGFuZGxlcyB0aGUgY2FsbGJhY2sgYWZ0ZXIgYSBjYWxsIGhhcyBmaW5pc2hlZAogICAgICoKICAgICAqIEByZXR1cm4gXElsbHVtaW5hdGVcSHR0cFxSZXNwb25zZQogICAgICovCiAgICBwdWJsaWMgZnVuY3Rpb24gbmV3Q2FsbChSZXF1ZXN0ICRyZXF1ZXN0LCAkYWdlbnRJZCkKICAgIHsKICAgICAgICAkcmVzcG9uc2UgPSBuZXcgU2VydmljZXNfVHdpbGlvX1R3aW1sOwogICAgICAgICRjYWxsU3RhdHVzID0gJHJlcXVlc3QtPmlucHV0KCdEaWFsQ2FsbFN0YXR1cycpOwoKICAgICAgICBpZiAoJGNhbGxTdGF0dXMgIT09ICdjb21wbGV0ZWQnKSB7CiAgICAgICAgICAgICRyZXNwb25zZS0+c2F5KAogICAgICAgICAgICAgICAgJ0l0IGFwcGVhcnMgdGhhdCBubyBhZ2VudCBpcyBhdmFpbGFibGUuICcgLgogICAgICAgICAgICAgICAgJ1BsZWFzZSBsZWF2ZSBhIG1lc3NhZ2UgYWZ0ZXIgdGhlIGJlZXAnLAogICAgICAgICAgICAgICAgWyd2b2ljZScgPT4gJ2FsaWNlJywgJ2xhbmd1YWdlJyA9PiAnZW4tR0InXQogICAgICAgICAgICApOwoKICAgICAgICAgICAgJHJlc3BvbnNlLT5yZWNvcmQoCiAgICAgICAgICAgICAgICBbJ21heExlbmd0aCcgPT4gJzIwJywKICAgICAgICAgICAgICAgICAnbWV0aG9kJyA9PiAnR0VUJywKICAgICAgICAgICAgICAgICAnYWN0aW9uJyA9PiByb3V0ZSgnaGFuZ3VwJywgW10sIGZhbHNlKSwKICAgICAgICAgICAgICAgICAndHJhbnNjcmliZUNhbGxiYWNrJyA9PiByb3V0ZSgKICAgICAgICAgICAgICAgICAgICAgJ3N0b3JlLXJlY29yZGluZycsIFsnYWdlbnQnID0+ICRhZ2VudElkXSwgZmFsc2UKICAgICAgICAgICAgICAgICApCiAgICAgICAgICAgICAgICBdCiAgICAgICAgICAgICk7CgogICAgICAgICAgICAkcmVzcG9uc2UtPnNheSgKICAgICAgICAgICAgICAgICdObyByZWNvcmRpbmcgcmVjZWl2ZWQuIEdvb2RieWUnLAogICAgICAgICAgICAgICAgWyd2b2ljZScgPT4gJ2FsaWNlJywgJ2xhbmd1YWdlJyA9PiAnZW4tR0InXQogICAgICAgICAgICApOwogICAgICAgICAgICAkcmVzcG9uc2UtPmhhbmd1cCgpOwoKICAgICAgICAgICAgcmV0dXJuICRyZXNwb25zZTsKICAgICAgICB9CgogICAgICAgIHJldHVybiAiT2siOwogICAgfQoKICAgIC8qKgogICAgICogUmVwbGllcyB3aXRoIGEgaGFuZ3VwCiAgICAgKgogICAgICogQHJldHVybiBcSWxsdW1pbmF0ZVxIdHRwXFJlc3BvbnNlCiAgICAgKi8KICAgIHB1YmxpYyBmdW5jdGlvbiBzaG93SGFuZ3VwKCkKICAgIHsKICAgICAgICAkcmVzcG9uc2UgPSBuZXcgU2VydmljZXNfVHdpbGlvX1R3aW1sOwogICAgICAgICRyZXNwb25zZS0+c2F5KAogICAgICAgICAgICAnVGhhbmtzIGZvciB5b3VyIG1lc3NhZ2UuIEdvb2RieWUnLAogICAgICAgICAgICBbJ3ZvaWNlJyA9PiAnYWxpY2UnLCAnbGFuZ3VhZ2UnID0+ICdlbi1HQiddCiAgICAgICAgKTsKICAgICAgICAkcmVzcG9uc2UtPmhhbmd1cCgpOwoKICAgICAgICByZXR1cm4gJHJlc3BvbnNlOwogICAgfQoKICAgIC8qKgogICAgICogSGFuZGxlcyB0aGUgY2FsbGJhY2sgZnJvbSBzY3JlZW5pbmcgYSBjYWxsCiAgICAgKgogICAgICogQHJldHVybiBcSWxsdW1pbmF0ZVxIdHRwXFJlc3BvbnNlCiAgICAgKi8KICAgIHB1YmxpYyBmdW5jdGlvbiBzY3JlZW5DYWxsKFJlcXVlc3QgJHJlcXVlc3QpCiAgICB7CiAgICAgICAgJGN1c3RvbWVyUGhvbmVOdW1iZXIgPSAkcmVxdWVzdC0+aW5wdXQoJ0Zyb20nKTsKICAgICAgICAkc3BlbGxlZFBob25lTnVtYmVyID0gam9pbignLCcsIHN0cl9zcGxpdCgkY3VzdG9tZXJQaG9uZU51bWJlcikpOwoKICAgICAgICAkcmVzcG9uc2UgPSBuZXcgU2VydmljZXNfVHdpbGlvX1R3aW1sOwogICAgICAgICRnYXRoZXIgPSAkcmVzcG9uc2UtPmdhdGhlcigKICAgICAgICAgICAgWydudW1EaWdpdHMnID0+IDEsCiAgICAgICAgICAgICAnYWN0aW9uJyA9PiByb3V0ZSgnY29ubmVjdC1tZXNzYWdlJywgW10sIGZhbHNlKSwKICAgICAgICAgICAgICdtZXRob2QnID0+ICdHRVQnCiAgICAgICAgICAgIF0KICAgICAgICApOwogICAgICAgICRnYXRoZXItPnNheSgnWW91IGhhdmUgYW4gaW5jb21pbmcgY2FsbCBmcm9tOiAnKTsKICAgICAgICAkZ2F0aGVyLT5zYXkoJHNwZWxsZWRQaG9uZU51bWJlcik7CiAgICAgICAgJGdhdGhlci0+c2F5KCdQcmVzcyBhbnkga2V5IHRvIGFjY2VwdCcpOwoKICAgICAgICAkcmVzcG9uc2UtPnNheSgnU29ycnkuIERpZCBub3QgZ2V0IHlvdXIgcmVzcG9uc2UnKTsKICAgICAgICAkcmVzcG9uc2UtPmhhbmd1cCgpOwoKICAgICAgICByZXR1cm4gJHJlc3BvbnNlOwogICAgfQoKICAgIC8qKgogICAgICogU2F5cyBtZXNzYWdlIGR1cmluZyBjb25uZWN0aW9uIGJldHdlZW4gYWdlbnQgYW5kIGN1c3RvbWVyIChFVCkKICAgICAqCiAgICAgKiBAcmV0dXJuIFxJbGx1bWluYXRlXEh0dHBcUmVzcG9uc2UKICAgICAqLwogICAgcHVibGljIGZ1bmN0aW9uIHNob3dDb25uZWN0TWVzc2FnZShSZXF1ZXN0ICRyZXF1ZXN0KQogICAgewogICAgICAgICRyZXNwb25zZSA9IG5ldyBTZXJ2aWNlc19Ud2lsaW9fVHdpbWw7CiAgICAgICAgJHJlc3BvbnNlLT5zYXkoJ0Nvbm5lY3RpbmcgeW91IHRvIHRoZSBleHRyYXRlcnJlc3RyaWFsIGluIGRpc3RyZXNzJyk7CgogICAgICAgIHJldHVybiAkcmVzcG9uc2U7CiAgICB9Cn0K</textarea>
+<textarea class="saurus-file" data-file="app/Http/Controllers/RecordingController.php" data-mode="php">PD9waHAKCm5hbWVzcGFjZSBBcHBcSHR0cFxDb250cm9sbGVyczsKCnVzZSBJbGx1bWluYXRlXEh0dHBcUmVxdWVzdDsKdXNlIEFwcFxIdHRwXFJlcXVlc3RzOwp1c2UgQXBwXEh0dHBcQ29udHJvbGxlcnNcQ29udHJvbGxlcjsKdXNlIEFwcFxSZWNvcmRpbmc7CgpjbGFzcyBSZWNvcmRpbmdDb250cm9sbGVyIGV4dGVuZHMgQ29udHJvbGxlcgp7CgogICAgLyoqCiAgICAgKiBTaG93cyBhbiBpbmRleCBvZiBleGlzdGluZ3MgcmVjb3JkaW5ncwogICAgICoKICAgICAqIEByZXR1cm4gXElsbHVtaW5hdGVcSHR0cFxSZXNwb25zZQogICAgICovCiAgICBwdWJsaWMgZnVuY3Rpb24gaW5kZXgoUmVxdWVzdCAkcmVxdWVzdCkKICAgIHsKICAgICAgICAkYWxsUmVjb3JkaW5ncyA9IFJlY29yZGluZzo6YWxsKCk7CgogICAgICAgIHJldHVybiByZXNwb25zZSgpLT52aWV3KAogICAgICAgICAgICAncmVjb3JkaW5ncy5pbmRleCcsCiAgICAgICAgICAgIFsncmVjb3JkaW5ncycgPT4gJGFsbFJlY29yZGluZ3NdCiAgICAgICAgKTsKICAgIH0KCiAgICAvKioKICAgICAqIFN0b3JlIGEgbmV3IHJlY29yZGluZyBmcm9tIGNhbGxiYWNrCiAgICAgKgogICAgICogQHJldHVybiBcSWxsdW1pbmF0ZVxIdHRwXFJlc3BvbnNlCiAgICAgKi8KICAgIHB1YmxpYyBmdW5jdGlvbiBzdG9yZVJlY29yZGluZyhSZXF1ZXN0ICRyZXF1ZXN0LCAkYWdlbnRJZCkKICAgIHsKICAgICAgICAkbmV3UmVjb3JkaW5nID0gbmV3IFJlY29yZGluZygKICAgICAgICAgICAgWydjYWxsZXJfbnVtYmVyJyA9PiAkcmVxdWVzdC0+aW5wdXQoJ0NhbGxlcicpLAogICAgICAgICAgICAgJ3RyYW5zY3JpcHRpb24nID0+ICRyZXF1ZXN0LT5pbnB1dCgnVHJhbnNjcmlwdGlvblRleHQnKSwKICAgICAgICAgICAgICdyZWNvcmRpbmdfdXJsJyA9PiAkcmVxdWVzdC0+aW5wdXQoJ1JlY29yZGluZ1VybCcpLAogICAgICAgICAgICAgJ2FnZW50X2lkJyAgICAgID0+ICRhZ2VudElkXQogICAgICAgICk7CgogICAgICAgICRuZXdSZWNvcmRpbmctPnNhdmUoKTsKCiAgICAgICAgcmV0dXJuICJSZWNvcmRpbmcgc2F2ZWQiOwogICAgfQp9Cg==</textarea>
+</div>
+</div><div class="saurus-overview"><ul></ul></div></div><div class="saurus-code"><div class="file-path"><span class="crumb-container"></span><i class="fa fa-fw fa-folder"></i></div><div class="saurus-editor"></div></div><div class="saurus-explorer"><div class="saurus-file-list"></div><a href="https://github.com/TwilioDevEd/ivr-recording-laravel" target="_blank" class="explorer-get-code"> <i class="fa fa-lg fa-github-square"> </i>View Code on GitHub</a></div></div></div></div><script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script><script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script><script src="ace/ace.js"></script><script src="ace/theme-monokai.js"></script><script src="viewsaurus.js"></script></body></html>
