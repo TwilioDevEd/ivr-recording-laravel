@@ -26,7 +26,7 @@
       ---
 
       **See Also:**
-      * [ET IVR Part One: Phone Trees](https://www.twilio.com/docs/howto/walkthrough/ivr-phone-larave/php/laravel#0)
+      * [ET IVR Part One: Phone Trees](https://www.twilio.com/docs/howto/walkthrough/ivr-phone-laravel/php/laravel#0)
       * [Laravel documentation](http://laravel.com/docs/5.1)
       * [The twilio-php helper library Quickstart](https://twilio-php.readthedocs.org/en/latest/#quickstart)
 
@@ -39,7 +39,7 @@
       this case an extension will be used to look up an Agent, so any string
       can be used to define an extension. 
 
-      Once we lookup the `Agent` we can `<Dial>` the agent's phone number and try
+      Once we lookup the `Agent`, we can `<Dial>` the agent's phone number and try
       and connect the call. Let's dive in a little bit more into how we lookup
       the Agent.
 
@@ -99,8 +99,8 @@
 
       If the agent responds to the call screen by entering any digit
       the response will be processed by our `connect-message` route
-      `showConnectMessage` which will `Say` a quick message, then
-      continue with the original `Dial` command and connect the two
+      `showConnectMessage` which will `<Say>` a quick message, then
+      continue with the original `<Dial>` command and connect the two
       parties.
 
       If the agent instead does not respond, the Dial verb will end
@@ -118,13 +118,13 @@
       When Twilio makes a request to our voicemail controller, it will pass a
       [`DialCallStatus`](https://www.twilio.com/docs/api/twiml/dial#attributes-action-dial-call-status-values)
       which will tell us if the call was successful. If it was "completed" we
-      hangup — otherwise we need to `Say` a quick prompt and then
+      hangup — otherwise we need to `<Say>` a quick prompt and then
       [`Record`](https://www.twilio.com/docs/api/twiml/record) a voicemail from
       the caller. 
 
-      We also specify an `action` for `Record`. This route will be
-      called after the recording has finished. It will say goodbye and
-      hangup.
+      We also specify an `action` for `<Record>`. This route will be
+      called after the call (and hence the recording) has finished. The route
+      will response "Goodbye" and then `<Hangup>`.
 
       ---
 
@@ -149,13 +149,13 @@
 
       Notice we redirect to an URL that is specific to an agent. This
       is a convenient way to specify which agent was called to produce
-      this voice message. This way we can also save the agent associated
-      together long with the voicemail.
+      this voice message. This way we can also save the associated
+      agent together with the voicemail.
 
       ---
 
       **See Also:**
-      * [Twilio transcribeCallBack](https://www.twilio.com/docs/api/twiml/record#attributes-transcribe-callback)
+      * [Twilio transcribeCallback](https://www.twilio.com/docs/api/twiml/record#attributes-transcribe-callback)
       * [Route parameters](http://laravel.com/docs/master/routing#route-parameters)
 
   .step(data-file='app/Http/Controllers/RecordingController.php')
@@ -167,9 +167,9 @@
       then rendered.
 
       It is possible to look up recordings via the Twilio REST API,
-      but since we have all of the data we need in the
-      `transcribeCallBack` we can easily store it ourselves and save a
-      roundtrip.
+      but since we have all of the data we need is in the
+      `transcribeCallback` request we can easily store it ourselves
+      and save a roundtrip.
 
       ---
 

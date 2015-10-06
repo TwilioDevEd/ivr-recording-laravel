@@ -28,7 +28,7 @@ of the tutorial.</p>
 <hr>
 <p><strong>See Also:</strong></p>
 <ul>
-<li><a href="https://www.twilio.com/docs/howto/walkthrough/ivr-phone-larave/php/laravel#0">ET IVR Part One: Phone Trees</a></li>
+<li><a href="https://www.twilio.com/docs/howto/walkthrough/ivr-phone-laravel/php/laravel#0">ET IVR Part One: Phone Trees</a></li>
 <li><a href="http://laravel.com/docs/5.1">Laravel documentation</a></li>
 <li><a href="https://twilio-php.readthedocs.org/en/latest/#quickstart">The twilio-php helper library Quickstart</a></li>
 </ul>
@@ -37,7 +37,7 @@ of the tutorial.</p>
 call. Depending on her input we will route this call to an extension. In
 this case an extension will be used to look up an Agent, so any string
 can be used to define an extension. </p>
-<p>Once we lookup the <code>Agent</code> we can <code>&lt;Dial&gt;</code> the agent&#39;s phone number and try
+<p>Once we lookup the <code>Agent</code>, we can <code>&lt;Dial&gt;</code> the agent&#39;s phone number and try
 and connect the call. Let&#39;s dive in a little bit more into how we lookup
 the Agent.</p>
 <hr>
@@ -81,8 +81,8 @@ number to accept the call. This is processed through the
 </div><div data-file="app/Http/Controllers/AgentCallController.php" data-highlight="68-106" class="step"><h2 id="connect-the-caller-to-the-agent">Connect the Caller to the Agent</h2>
 <p>If the agent responds to the call screen by entering any digit
 the response will be processed by our <code>connect-message</code> route
-<code>showConnectMessage</code> which will <code>Say</code> a quick message, then
-continue with the original <code>Dial</code> command and connect the two
+<code>showConnectMessage</code> which will <code>&lt;Say&gt;</code> a quick message, then
+continue with the original <code>&lt;Dial&gt;</code> command and connect the two
 parties.</p>
 <p>If the agent instead does not respond, the Dial verb will end
 and Twilio will continue processing the TwiML document.</p>
@@ -95,12 +95,12 @@ and Twilio will continue processing the TwiML document.</p>
 <p>When Twilio makes a request to our voicemail controller, it will pass a
 <a href="https://www.twilio.com/docs/api/twiml/dial#attributes-action-dial-call-status-values"><code>DialCallStatus</code></a>
 which will tell us if the call was successful. If it was &quot;completed&quot; we
-hangup — otherwise we need to <code>Say</code> a quick prompt and then
+hangup — otherwise we need to <code>&lt;Say&gt;</code> a quick prompt and then
 <a href="https://www.twilio.com/docs/api/twiml/record"><code>Record</code></a> a voicemail from
 the caller. </p>
-<p>We also specify an <code>action</code> for <code>Record</code>. This route will be
-called after the recording has finished. It will say goodbye and
-hangup.</p>
+<p>We also specify an <code>action</code> for <code>&lt;Record&gt;</code>. This route will be
+called after the call (and hence the recording) has finished. The route
+will response &quot;Goodbye&quot; and then <code>&lt;Hangup&gt;</code>.</p>
 <hr>
 <p><strong>See Also:</strong></p>
 <ul>
@@ -119,12 +119,12 @@ complete. Adding the <code>transcribeCallback</code> attribute to
 <code>&lt;Record&gt;</code> implies <code>&#39;transcribe&#39; =&gt; true</code>.</p>
 <p>Notice we redirect to an URL that is specific to an agent. This
 is a convenient way to specify which agent was called to produce
-this voice message. This way we can also save the agent associated
-together long with the voicemail.</p>
+this voice message. This way we can also save the associated
+agent together with the voicemail.</p>
 <hr>
 <p><strong>See Also:</strong></p>
 <ul>
-<li><a href="https://www.twilio.com/docs/api/twiml/record#attributes-transcribe-callback">Twilio transcribeCallBack</a></li>
+<li><a href="https://www.twilio.com/docs/api/twiml/record#attributes-transcribe-callback">Twilio transcribeCallback</a></li>
 <li><a href="http://laravel.com/docs/master/routing#route-parameters">Route parameters</a></li>
 </ul>
 </div><div data-file="app/Http/Controllers/RecordingController.php" class="step"><h2 id="view-an-agent-s-voicemails">View an Agent&#39;s Voicemails</h2>
@@ -132,9 +132,9 @@ together long with the voicemail.</p>
 her recordings. We simply bind the recordings to a view that is
 then rendered.</p>
 <p>It is possible to look up recordings via the Twilio REST API,
-but since we have all of the data we need in the
-<code>transcribeCallBack</code> we can easily store it ourselves and save a
-roundtrip.</p>
+but since we have all of the data we need is in the
+<code>transcribeCallback</code> request we can easily store it ourselves
+and save a roundtrip.</p>
 <hr>
 <p><strong>See Also:</strong></p>
 <ul>
