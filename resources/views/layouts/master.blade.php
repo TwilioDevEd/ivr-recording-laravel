@@ -10,11 +10,6 @@
             <div class="navbar-header">
                 <a class="navbar-brand" href="#">IVR Screening</a>
             </div>
-            <div class="collapse navbar-collapse">
-                <ul class="nav navbar-nav">
-                    <li><a href="{{ route('recording.index') }}">All recordings</a></li>
-                </ul>
-            </div>
         </nav>
         <div class="container">
             @yield('content')
