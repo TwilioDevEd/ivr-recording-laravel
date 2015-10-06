@@ -68,9 +68,12 @@ class RecordingControllerTest extends TestCase
         $newRecording->save();
 
         // When
-        $response = $this->call('GET', route('recording.index'));
+        $response = $this->call(
+            'GET',
+            route('agent-recordings') . '?agentNumber=%2B15559997771'
+        );
         $responseContext = $response->getOriginalContent();
-
+        error_log($responseContext);
         // Then
         $this->assertCount(1, $responseContext['recordings']);
         $recordings = $responseContext['recordings'];

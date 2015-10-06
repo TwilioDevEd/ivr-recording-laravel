@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Recording;
+use App\Agent;
 
 class RecordingController extends Controller
 {
@@ -15,13 +16,16 @@ class RecordingController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function indexByAgent(Request $request)
     {
-        $allRecordings = Recording::all();
+        $agentNumber = $request->input('agentNumber');
+        $agent = Agent::where(['phone_number' => $agentNumber])->firstOrFail();
+        $allRecordings = Recording::where(['agent_id' => $agent->id])->get();
 
         return response()->view(
             'recordings.index',
-            ['recordings' => $allRecordings]
+            ['recordings' => $allRecordings,
+             'agent' => $agent]
         );
     }
 
