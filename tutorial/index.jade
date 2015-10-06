@@ -40,7 +40,7 @@
       can be used to define an extension. 
 
       Once we lookup the `Agent`, we can `<Dial>` the agent's phone number and try
-      and connect the call. Let's dive in a little bit more into how we lookup
+      to connect the call. Let's dive in a little bit more into how we lookup
       the Agent.
 
       ---
@@ -119,7 +119,7 @@
       [`DialCallStatus`](https://www.twilio.com/docs/api/twiml/dial#attributes-action-dial-call-status-values)
       which will tell us if the call was successful. If it was "completed" we
       hangup — otherwise we need to `<Say>` a quick prompt and then
-      [`Record`](https://www.twilio.com/docs/api/twiml/record) a voicemail from
+      [`<Record>`](https://www.twilio.com/docs/api/twiml/record) a voicemail from
       the caller. 
 
       We also specify an `action` for `<Record>`. This route will be
