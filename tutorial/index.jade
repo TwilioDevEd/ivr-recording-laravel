@@ -99,12 +99,13 @@
 
       If the agent responds to the call screen by entering any digit
       the response will be processed by our `connect-message` route
-      `showConnectMessage` which will `<Say>` a quick message, then
-      continue with the original `<Dial>` command and connect the two
-      parties.
+      (mapped to `showConnectMessage`) which will `<Say>` a quick
+      message, then continue with the original `<Dial>` command and
+      connect the two parties.
 
-      If the agent instead does not respond, the Dial verb will end
-      and Twilio will continue processing the TwiML document.
+      If the agent instead does not respond, the processing of the
+      `<Dial>` verb will end and Twilio will continue processing the
+      TwiML document.
 
       ---
 
