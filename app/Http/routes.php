@@ -10,7 +10,6 @@
 | and give it the controller to call when that URI is requested.
 |
 */
-Route::resource('recording', 'RecordingController', ['only' => ['index']]);
 Route::group(
     ['prefix' => 'ivr', 'middleware' => 'starReturn'], function () {
         Route::post(
@@ -72,6 +71,11 @@ Route::group(
 Route::get(
     '/recording', [
         'as' => 'agent-recordings',
-        'uses' => 'Recordingcontroller@indexByAgent'
+        'uses' => 'RecordingController@indexByAgent'
     ]
+);
+Route::get(
+    '/', function () {
+        return response()->view('instructions');
+    }
 );

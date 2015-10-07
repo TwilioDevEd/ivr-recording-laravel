@@ -11,7 +11,7 @@ Twilio and Laravel.
 1. Install the application's dependencies with [Composer](https://getcomposer.org/)
 
    ```bash
-   $ composer update
+   $ composer install
    ```
 1. The application uses PostgreSQL as the persistence layer. If you
    don't have it already, you should install it. The easiest way is by
@@ -27,7 +27,10 @@ Twilio and Laravel.
     $ cp .env.example .env
     ```
 
-   You'll need to set `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, and `DB_PASSWORD`.
+   You'll need to set `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, and
+   `DB_PASSWORD`. You can often leave `DB_USERNAME` and `DB_PASSWORD`
+   empty. `DB_HOST` should be `localhost` if you're running the DB in
+   your own machine.
 
 1. Run the migrations.
    ```bash
