@@ -31,10 +31,21 @@ Twilio and Laravel.
    `DB_PASSWORD`. You can often leave `DB_USERNAME` and `DB_PASSWORD`
    empty. `DB_HOST` should be `localhost` if you're running the DB in
    your own machine.
+1. Generate an `APP_KEY`:
 
-1. Run the migrations.
+   ```bash
+   $ php artisan key:generate
+   ``
+
+1. Run the migrations:
+
    ```bash
    $ php artisan migrate
+   ```
+1. Load seed data:
+
+   ```bash
+   $ php artisan db:seed
    ```
 1. Run the application using Artisan.
 
@@ -44,7 +55,7 @@ Twilio and Laravel.
 1. Expose the application to the wider Internet using [ngrok](https://ngrok.com/)
 
    ```bash
-   $ ngrok 8000 http
+   $ ngrok http 8000
    ```
 1. Provision a number under the
    [Manage Numbers page](https://www.twilio.com/user/account/phone-numbers/incoming)
