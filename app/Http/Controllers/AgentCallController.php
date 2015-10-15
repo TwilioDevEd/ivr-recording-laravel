@@ -14,7 +14,7 @@ class AgentCallController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function newCall(Request $request, $agentId)
+    public function agentVoicemail(Request $request, $agentId)
     {
         $response = new Services_Twilio_Twiml;
         $callStatus = $request->input('DialCallStatus');
