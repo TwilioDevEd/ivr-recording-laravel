@@ -35,8 +35,7 @@ Twilio and Laravel.
 
    ```bash
    $ php artisan key:generate
-   ``
-
+   ```
 1. Run the migrations:
 
    ```bash

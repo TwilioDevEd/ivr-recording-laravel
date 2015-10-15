@@ -70,7 +70,7 @@ class RecordingControllerTest extends TestCase
         // When
         $response = $this->call(
             'GET',
-            route('agent-recordings') . '?agentNumber=%2B15559997771'
+            route('agent-recordings') . '?agentNumber=15559997771'
         );
         $responseContext = $response->getOriginalContent();
         error_log($responseContext);

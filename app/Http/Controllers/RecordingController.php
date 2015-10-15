@@ -19,7 +19,10 @@ class RecordingController extends Controller
     public function indexByAgent(Request $request)
     {
         $agentNumber = $request->input('agentNumber');
-        $agent = Agent::where(['phone_number' => $agentNumber])->firstOrFail();
+        $agentNumberInE164Format = '+' . $agentNumber;
+
+        $agent = Agent::where(['phone_number' => $agentNumberInE164Format])
+               ->firstOrFail();
         $allRecordings = Recording::where(['agent_id' => $agent->id])->get();
 
         return response()->view(
