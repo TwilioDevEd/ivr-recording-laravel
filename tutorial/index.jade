@@ -39,23 +39,24 @@
       this case an extension will be used to look up an Agent, so any string
       can be used to define an extension. 
 
-      Once we lookup the `Agent`, we can `<Dial>` the agent's phone number and try
-      to connect the call. Let's dive in a little bit more into how we lookup
-      the Agent.
+      Once we lookup the `Agent`, we can
+      [Dial](https://www.twilio.com/docs/api/twiml/dial) the agent's phone
+      number and try to connect the call. Let's dive in a little bit more into
+      how we lookup the Agent.
 
       ---
 
       **See Also:**
       * [TwiML Creation with twilio-php](https://twilio-php.readthedocs.org/en/latest/usage/twiml.html)
-      * [TwiML Dial](https://www.twilio.com/docs/api/twiml/dial)
       
   .step(data-file='app/Http/Controllers/ExtensionController.php', data-highlight='51-69')
     :markdown
       ## Looking up an Agent
 
-      In this case the Agent model is very simple. The migration used to create it:
+      In this case the Agent model is very simple. This is the migration used to
+      create it:
 
-      ```php
+      ```
       Schema::create(
           'agents', function (Blueprint $table) {
               $table->increments('id');
@@ -66,7 +67,7 @@
       );
       ```
 
-      We have a handle or `extension` that we can use to lookup and Agent, and
+      We have a handle or `extension` that we can use to lookup an Agent, and
       we have a `phone_number` that we will call.
 
       ---
@@ -80,8 +81,12 @@
 
       By passing a `url` to the `Dial` > [`Number`](https://www.twilio.com/docs/api/twiml/number)
       TwiML tag, we are telling Twilio to make a POST request to the
-      `new-call` route _after_ the agent has picked up but _before_
-      connecting the two parties. 
+      `screen-call` route _after_ the agent has picked up but _before_
+      connecting the two parties.
+
+      Let's look at the controller for that route next.
+
+  .step(data-file='app/Http/Controllers/AgentCallController.php', data-highlight='')
 
       Essentially we are telling Twilio to execute some TwiML that only the
       agent will hear. In this case the TwiML instructs the agent to press any
