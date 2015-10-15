@@ -37,7 +37,7 @@ class ExtensionController extends Controller
         );
 
         $dialCommand = $response->dial(
-            ['action' => route('new-call', ['agent' => $agent->id], false),
+            ['action' => route('agent-voicemail', ['agent' => $agent->id], false),
              'method' => 'POST']
         );
         $dialCommand->number(

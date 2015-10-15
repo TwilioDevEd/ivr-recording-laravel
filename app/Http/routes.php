@@ -37,9 +37,9 @@ Route::group(
             ]
         );
         Route::post(
-            '/agent/{agent}/call', [
-                'as' => 'new-call',
-                'uses' => 'AgentCallController@newCall'
+            '/agent/{agent}/voicemail', [
+                'as' => 'agent-voicemail',
+                'uses' => 'AgentCallController@agentVoicemail'
             ]
         );
         Route::post(

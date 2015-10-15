@@ -8,12 +8,12 @@ class AgentCallControllerTest extends TestCase
 {
     use DatabaseTransactions;
 
-    public function testNewCompletedCall()
+    public function testNewAgentVoicemail()
     {
         // When
         $response = $this->call(
             'POST',
-            route('new-call', ['agent' => 1]),
+            route('agent-voicemail', ['agent' => 1]),
             ['DialCallStatus' => 'no-answer']
         );
         $voicemail = $response->getContent();
@@ -35,12 +35,12 @@ class AgentCallControllerTest extends TestCase
         );
     }
 
-    public function testNoncompleteCall()
+    public function testNoAgentVoicemail()
     {
         // When
         $response = $this->call(
             'POST',
-            route('new-call', ['agent' => 1]),
+            route('agent-voicemail', ['agent' => 1]),
             ['DialCallStatus' => 'completed']
         );
         // Then
