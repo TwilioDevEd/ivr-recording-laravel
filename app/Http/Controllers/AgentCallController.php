@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use Services_Twilio_Twiml;
+use Twilio\Twiml;
 
 class AgentCallController extends Controller
 {
@@ -16,7 +16,7 @@ class AgentCallController extends Controller
      */
     public function agentVoicemail(Request $request, $agentId)
     {
-        $response = new Services_Twilio_Twiml;
+        $response = new Twiml();
         $callStatus = $request->input('DialCallStatus');
 
         if ($callStatus !== 'completed') {
@@ -55,7 +55,7 @@ class AgentCallController extends Controller
      */
     public function showHangup()
     {
-        $response = new Services_Twilio_Twiml;
+        $response = new Twiml();
         $response->say(
             'Thanks for your message. Goodbye',
             ['voice' => 'alice', 'language' => 'en-GB']
@@ -75,7 +75,7 @@ class AgentCallController extends Controller
         $customerPhoneNumber = $request->input('From');
         $spelledPhoneNumber = join(',', str_split($customerPhoneNumber));
 
-        $response = new Services_Twilio_Twiml;
+        $response = new Twiml();
         $gather = $response->gather(
             ['numDigits' => 1,
              'action' => route('connect-message', [], false),
@@ -99,7 +99,7 @@ class AgentCallController extends Controller
      */
     public function showConnectMessage(Request $request)
     {
-        $response = new Services_Twilio_Twiml;
+        $response = new Twiml();
         $response->say('Connecting you to the extraterrestrial in distress');
 
         return $response;
