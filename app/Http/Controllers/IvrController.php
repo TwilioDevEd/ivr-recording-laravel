@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use Services_Twilio_Twiml;
+use Twilio\Twiml;
 
 class IvrController extends Controller
 {
@@ -17,7 +17,7 @@ class IvrController extends Controller
      */
     public function showWelcome()
     {
-        $response = new Services_Twilio_Twiml;
+        $response = new Twiml();
         $gather = $response->gather(
             ['numDigits' => 1,
              'action' => route('main-menu', [], false),

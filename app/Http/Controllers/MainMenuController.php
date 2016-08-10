@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
-use Services_Twilio_Twiml;
+use Twilio\Twiml;
 
 class MainMenuController extends Controller
 {
@@ -39,7 +39,7 @@ class MainMenuController extends Controller
      */
     public function showMainMenuRedirect()
     {
-        $errorResponse = new Services_Twilio_Twiml;
+        $errorResponse = new Twiml();
         $errorResponse->say(
             'Returning to the main menu',
             ['voice' => 'alice', 'language' => 'en-GB']
@@ -55,7 +55,7 @@ class MainMenuController extends Controller
      */
     private function _getReturnInstructions()
     {
-        $response = new Services_Twilio_Twiml;
+        $response = new Twiml();
         $response->say(
             'To get to your extraction point, get on your bike and go down the' .
             ' street. Then Left down an alley. Avoid the police cars. Turn left' .
@@ -79,7 +79,7 @@ class MainMenuController extends Controller
      */
     private function _getPlanetsMenu()
     {
-        $response = new Services_Twilio_Twiml;
+        $response = new Twiml();
         $gather = $response->gather(
             ['numDigits' => '1',
              'action' => route('extension-connection', [], false),
