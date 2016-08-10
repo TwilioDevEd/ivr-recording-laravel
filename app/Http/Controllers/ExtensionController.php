@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Agent;
-use Services_Twilio_Twiml;
+use Twilio\Twiml;
 
 class ExtensionController extends Controller
 {
@@ -29,7 +29,7 @@ class ExtensionController extends Controller
 
         $numberToDial = $agent->phone_number;
 
-        $response = new Services_Twilio_Twiml;
+        $response = new Twiml();
         $response->say(
             "You'll be connected shortly to your planet. " .
             $this->_thankYouMessage,
