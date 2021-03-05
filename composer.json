@@ -1,5 +1,5 @@
 {
-    "name": "TwilioDevEd/ivr-recording-laravel",
+    "name": "twilio-deved/ivr-recording-laravel",
     "description": "Call screening, IVR and recording with Laravel",
     "keywords": ["twilio", "ivr", "laravel"],
     "license": "MIT",
