@@ -25,7 +25,7 @@ class IvrController extends Controller
         );
 
         $gather->play(
-            'http://howtodocs.s3.amazonaws.com/et-phone.mp3',
+            'https://deved-sample-assets-2691.twil.io/et-phone.mp3',
             ['loop' => 3]
         );
 
