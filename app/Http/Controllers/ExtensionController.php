@@ -33,7 +33,7 @@ class ExtensionController extends Controller
         $response->say(
             "You'll be connected shortly to your planet. " .
             $this->_thankYouMessage,
-            ['voice' => 'alice', 'language' => 'en-GB']
+            ['voice' => 'Polly.Amy', 'language' => 'en-GB']
         );
 
         $dialCommand = $response->dial(

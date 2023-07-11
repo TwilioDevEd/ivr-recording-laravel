@@ -23,7 +23,7 @@ class AgentCallController extends Controller
             $response->say(
                 'It appears that no agent is available. ' .
                 'Please leave a message after the beep',
-                ['voice' => 'alice', 'language' => 'en-GB']
+                ['voice' => 'Polly.Amy', 'language' => 'en-GB']
             );
 
             $response->record(
@@ -38,7 +38,7 @@ class AgentCallController extends Controller
 
             $response->say(
                 'No recording received. Goodbye',
-                ['voice' => 'alice', 'language' => 'en-GB']
+                ['voice' => 'Polly.Amy', 'language' => 'en-GB']
             );
             $response->hangup();
 
@@ -58,7 +58,7 @@ class AgentCallController extends Controller
         $response = new Twiml();
         $response->say(
             'Thanks for your message. Goodbye',
-            ['voice' => 'alice', 'language' => 'en-GB']
+            ['voice' => 'Polly.Amy', 'language' => 'en-GB']
         );
         $response->hangup();
 
